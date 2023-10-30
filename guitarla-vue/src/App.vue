@@ -100,4 +100,3 @@
     <Footer/>
 
 </template>
-
