@@ -1,9 +1,37 @@
 <script setup>
+    import {ref} from 'vue'
+    import Alerta from './Alerta.vue';
 
+    const emits = defineEmits(["definir-presupuesto"])
+
+    const presupuesto = ref(0)
+    const error = ref('')
+    let timeOut;
+
+    const definirPresupuesto = () => {
+        if(presupuesto.value <= 0 || presupuesto.value == ''){
+            error.value = "Ingresa un numero mayor a 0"
+
+            if(timeOut)
+                clearTimeout(timeOut)
+
+            timeOut = setTimeout(()=> {error.value = ""}, 3000)
+
+            return
+        }
+        emits('definir-presupuesto', presupuesto.value)
+    }
 </script>
 
 <template>
-    <form class="presupuesto">
+    <form 
+    class="presupuesto"
+    @submit.prevent="definirPresupuesto"
+    >
+        <Alerta v-if="error">
+            <p>{{error}}</p>
+        </Alerta>
+
         <div class="campo">
             <label for="nuevo-presupuesto">Definir Presupuesto</label>
 
@@ -11,6 +39,8 @@
             id="nuevo-presupuesto"
             class="nuevo-presupuesto"
             placeholder="Añade tu presupuesto"
+            min="0"
+            v-model.number="presupuesto"
             />
         </div>  
         
