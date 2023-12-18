@@ -46,5 +46,7 @@
 </template>
 
 <style scoped>
-    
+    .gasto{
+        
+    }
 </style>
