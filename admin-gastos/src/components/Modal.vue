@@ -3,7 +3,7 @@
     import Alerta from "./Alerta.vue"
     import cerrarModalIcono from "../assets/img/cerrar.svg"
 
-    const emits = defineEmits(["cerrar-modal", "update:nombre", "update:categoria", "update:cantidad", "guardar-gasto"])
+    const emits = defineEmits(["cerrar-modal", "update:nombre", "update:categoria", "update:cantidad", "guardar-gasto", "eliminar-gasto"])
     const props = defineProps({
         modal:{
             type:Object,
@@ -20,14 +20,23 @@
         categoria:{
             type:String,
             required: true
-        }
+        },
+        disponible:{
+            type: Number,
+            required: true
+        },
+        id:{
+            type: [String, null],
+            required: true
+        },
     })
 
     const error = ref("")
     let timer;
+    const cantidadPrevia = props.cantidad;
 
     const agregarGasto = () => {
-        const { nombre, cantidad, categoria } = props
+        const { nombre, cantidad, categoria, disponible, id } = props
 
         if ([nombre.trim(), cantidad, categoria].includes('')){
             error.value = "Todos los campos son obligatorios"
@@ -48,6 +57,28 @@
             timer = setTimeout(() => {error.value = ""}, 3000)
 
             return;
+        }
+
+        if (id) {
+            if (cantidad > cantidadPrevia + disponible) {
+                error.value = "Has excedido el Presupuesto"
+
+                if (timer)
+                    clearTimeout(timer)
+
+                timer = setTimeout(() => {error.value = ""}, 3000)
+            }
+        } else {
+            if (cantidad > disponible) {
+                error.value = "Has excedido el Presupuesto"
+
+                if (timer)
+                    clearTimeout(timer)
+
+                timer = setTimeout(() => {error.value = ""}, 3000)
+
+                return;
+            }
         }
 
         emits("guardar-gasto")
@@ -71,7 +102,7 @@
             <form class="nuevo-gasto"
                 @submit.prevent="agregarGasto">
 
-                <legend>Agregar Gasto</legend>
+                <legend>{{ id ? "Editar Gasto" : "Agregar Gasto"}}</legend>
 
                 <Alerta v-if="error">{{ error }}</Alerta>
 
@@ -111,8 +142,17 @@
                     </select>
                 </div>
 
-                <input type="submit" value="Agregar Gasto">
+                <input type="submit" :value="[id ? 'Guardar Cambios' : 'Agregar Gasto']">
             </form>
+
+            <button
+                type="button"
+                class="btn-eliminar"
+                @click="$emit('eliminar-gasto')"
+                v-if="id"
+                >
+                Eliminar Gasto
+            </button>
         </div>
     </div>
 </template>
@@ -195,5 +235,17 @@
     }
     .nuevo-gasto input[type="submit"]:hover{
         background-color: rgb(31, 89, 182);
+    }
+
+    .btn-eliminar{
+        padding: 1rem;
+        width: 100%;
+        background-color: #ef4444;
+        font-weight: 700;
+        color: var(--blanco);
+        font-size: 1.2rem;
+        margin-top: 10rem;
+        cursor: pointer;
+        border: none;
     }
 </style>
