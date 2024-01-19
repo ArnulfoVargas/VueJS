@@ -1,7 +1,7 @@
 <script setup>
   import { ref, reactive, watch, onMounted} from 'vue';
 
-  import {uid} from 'uid'
+  import uniqid from 'uniqid'
   
   import Header from './components/Header.vue';
   import Formulario from './components/Formulario.vue';
@@ -37,7 +37,7 @@
       pacientes.value[i] = {...datos}
     }
     else{
-      pacientes.value.push({...datos, id: uid()})
+      pacientes.value.push({...datos, id: uniqid()})
     }
     Object.assign(datos,  {
                             id                : null,
